@@ -1,0 +1,115 @@
+Metadata-Version: 2.4
+Name: wealth-lab-gbp
+Version: 0.1.1
+Summary: Public-data wealth management models (GBP base): SAA optimiser, tax-aware rebalancing, client segmentation, attribution & factor exposure.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas>=2.1
+Requires-Dist: scipy>=1.11
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: cvxpy>=1.4
+Requires-Dist: yfinance>=0.2.40
+Requires-Dist: pandas-datareader>=0.10
+Requires-Dist: scikit-learn>=1.3
+Requires-Dist: statsmodels>=0.14
+Requires-Dist: pyarrow>=14
+Requires-Dist: streamlit>=1.36
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"
+
+# Wealth Lab (GBP) — public-data wealth management models
+
+A publish-safe portfolio project demonstrating four common wealth-management analytics components (GBP base, ETF proxies, monthly rebalancing):
+
+1. **Strategic Asset Allocation (SAA) optimiser** (monthly) with bounds + turnover penalty  
+2. **Tax-aware rebalancing** with **tax lots** + gain-minimising (loss-harvesting-first) sells  
+3. **Client segmentation** (unsupervised) with publish-safe synthetic clients  
+4. **Performance attribution + factor exposure** (Brinson effects + rolling factor betas)
+
+> Educational prototype — not investment advice.
+
+---
+
+## Quick start (local)
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
+pip install -U pip
+pip install -e ".[dev]"
+pytest -q
+```
+
+Run the director-friendly dashboard:
+
+```bash
+streamlit run app/Home.py
+```
+
+---
+
+## Director Mode (one-click viewing)
+
+Open the Streamlit app and select **Director Mode** in the sidebar.
+
+- Presents **four tiles** (one per model).
+- Uses defaults.
+- Loads **precomputed artifacts** if available for fast loading.
+
+### Precompute artifacts (optional but recommended)
+
+Artifacts are saved under `./artifacts/` as parquet/json and can be reused:
+
+```bash
+python -c "from wealth_lab.pipeline import build_all_and_save; from wealth_lab.config import DEFAULT_UNIVERSE, DEFAULT_BT; build_all_and_save(DEFAULT_UNIVERSE, DEFAULT_BT)"
+```
+
+In the Streamlit app (Analyst Mode), you can also click **Build / refresh artifacts**.
+
+---
+
+## Static reports (easy sharing / GitHub Pages)
+
+Generate the HTML reports locally:
+
+```bash
+python scripts/build_reports.py
+```
+
+Open:
+
+- `reports/index.html` (landing page)
+- `reports/saa.html`
+- `reports/tax_rebal.html`
+- `reports/segmentation.html`
+- `reports/attribution_factors.html`
+
+### Publish via GitHub Pages
+
+This repo includes a GitHub Actions workflow (`.github/workflows/pages.yml`) that builds `reports/` and publishes via Pages.
+
+1. Push to `main`
+2. GitHub → **Settings → Pages** → Source: **GitHub Actions**
+3. Share the Pages URL with your director
+
+---
+
+## Data sources
+
+- **ETF prices:** downloaded via `yfinance` (London tickers, e.g. `IWDG.L`, `IGLT.L`, `SLXX.L`, `INXG.L`, `SGLN.L`)
+- **Factor data:** Fama-French monthly factors via `pandas-datareader` when available
+
+Tickers can be changed in `src/wealth_lab/config.py`.
+
+---
+
+## Repo map
+
+- `src/wealth_lab/` — model code
+- `app/` — Streamlit dashboard (Director Mode + Analyst Mode)
+- `scripts/build_reports.py` — generates static HTML reports
+- `artifacts/` — optional cached outputs (not committed)
+- `tests/` — unit tests
+- `.github/workflows/` — CI + Pages publishing
