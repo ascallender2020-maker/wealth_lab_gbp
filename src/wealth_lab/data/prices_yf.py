@@ -20,6 +20,6 @@ def fetch_adj_close(tickers: list[str], start: str = "2005-01-01") -> pd.DataFra
     return px
 
 def to_monthly_returns(adj_close: pd.DataFrame) -> pd.DataFrame:
-    px_m = adj_close.resample("M").last()
+    px_m = adj_close.resample("ME").last()
     rets = px_m.pct_change().dropna(how="all")
     return rets
